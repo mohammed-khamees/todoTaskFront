@@ -1,46 +1,62 @@
 import React, { useContext } from 'react';
 import { RegisterContext } from './../../contexts/register';
-import { If, Then } from 'react-if';
-import { Notification } from 'rsuite';
+import { If, Then, Else } from 'react-if';
+import {
+	Notification,
+	Form,
+	FormGroup,
+	FormControl,
+	ControlLabel,
+	Button,
+	Schema,
+} from 'rsuite';
 
 const Register = () => {
 	const registerContext = useContext(RegisterContext);
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
+	const handleClick = () => {
 		registerContext.addNewUser();
 	};
 
 	return (
 		<>
-			<form onSubmit={handleSubmit}>
-				<input
-					type="text"
-					placeholder="firstName here"
-					onChange={(e) => registerContext.setFirstName(e.target.value)}
-				/>
-				<input
-					type="text"
-					placeholder="lastName here"
-					onChange={(e) => registerContext.setLastName(e.target.value)}
-				/>
-				<input
-					type="email"
-					placeholder="email here"
-					onChange={(e) => registerContext.setEmail(e.target.value)}
-				/>
-				<input
-					type="password"
-					placeholder="password here"
-					onChange={(e) => registerContext.setPassword(e.target.value)}
-				/>
-				<button>Register</button>
-			</form>
-			<If condition={registerContext.message}>
-				<Then>
-					<div>{registerContext.message}</div>
-				</Then>
-			</If>
+			<Form>
+				<FormGroup>
+					<ControlLabel>First Name:</ControlLabel>
+					<FormControl
+						type="text"
+						placeholder="firstName here"
+						onChange={(value) => registerContext.setFirstName(value)}
+					/>
+				</FormGroup>
+				<FormGroup>
+					<ControlLabel>Last Name:</ControlLabel>
+					<FormControl
+						type="text"
+						placeholder="lastName here"
+						onChange={(value) => registerContext.setLastName(value)}
+					/>
+				</FormGroup>
+				<FormGroup>
+					<ControlLabel>E-mail:</ControlLabel>
+					<FormControl
+						placeholder="email here"
+						onChange={(value) => registerContext.setEmail(value)}
+					/>
+				</FormGroup>
+				<FormGroup>
+					<ControlLabel>Password:</ControlLabel>
+					<FormControl
+						type="password"
+						placeholder="password here"
+						onChange={(value) => registerContext.setPassword(value)}
+					/>
+				</FormGroup>
+
+				<Button appearance="primary" onClick={handleClick}>
+					Register
+				</Button>
+			</Form>
 		</>
 	);
 };

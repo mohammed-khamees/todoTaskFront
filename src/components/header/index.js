@@ -1,17 +1,19 @@
 import React, { useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-// import { LoginContext } from '../context/login';
+import { LoginContext } from './../../contexts/login';
 import { If, Then, Else } from 'react-if';
 import { Navbar, Nav, Dropdown, Icon } from 'rsuite';
 
 const Navigation = () => {
-	// const loginContext = useContext(LoginContext);
+	const loginContext = useContext(LoginContext);
 	const history = useHistory();
 
-	// const handleClick = () => {
-	// 	history.push('/');
-	// 	loginContext.logout();
-	// };
+	const handleClick = () => {
+		history.push('/login');
+		loginContext.logout();
+	};
+
+	console.log(loginContext.loggedIn);
 
 	return (
 		<Navbar appearance="inverse">
@@ -20,7 +22,7 @@ const Navigation = () => {
 			</Navbar.Header>
 			<Navbar.Body style={{ float: 'right', paddingRight: '2rem' }}>
 				<Nav activeKey={null}>
-					<If condition={true}>
+					<If condition={!loginContext.loggedIn}>
 						<Then>
 							<Link to="/register" style={{ color: 'white' }}>
 								<Nav.Item eventKey="1" icon={<Icon icon="user-plus" />}>
@@ -45,11 +47,14 @@ const Navigation = () => {
 										Settings
 									</Dropdown.Item>
 								</Link>
-								<Link to="/login" style={{ color: 'white' }}>
-									<Dropdown.Item eventKey="5" icon={<Icon icon="sign-out" />}>
-										Logout
-									</Dropdown.Item>
-								</Link>
+
+								<Dropdown.Item
+									eventKey="5"
+									icon={<Icon icon="sign-out" />}
+									onClick={handleClick}
+								>
+									Logout
+								</Dropdown.Item>
 							</Dropdown>
 						</Else>
 					</If>

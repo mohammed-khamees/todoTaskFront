@@ -5,11 +5,14 @@ import { BrowserRouter as Router } from 'react-router-dom';
 
 //providers
 import RegisterProvider from './contexts/register';
+import LoginProvider from './contexts/login';
 
 ReactDOM.render(
 	<Router>
 		<RegisterProvider>
-			<App />
+			<LoginProvider>
+				<App />
+			</LoginProvider>
 		</RegisterProvider>
 	</Router>,
 	document.getElementById('root'),
