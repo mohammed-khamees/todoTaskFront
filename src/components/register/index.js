@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { RegisterContext } from './../../contexts/register';
 import { If, Then } from 'react-if';
+import { Notification } from 'rsuite';
 
 const Register = () => {
 	const registerContext = useContext(RegisterContext);
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = (e) => {
 		e.preventDefault();
 		registerContext.addNewUser();
 	};

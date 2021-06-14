@@ -1,6 +1,7 @@
 import { Route } from 'react-router-dom';
 import Header from './components/header';
 import Register from './components/register';
+import 'rsuite/dist/styles/rsuite-default.css';
 
 function App() {
 	return (
