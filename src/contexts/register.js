@@ -10,7 +10,6 @@ const RegisterProvider = (props) => {
 	const [lastName, setLastName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const [message, setMessage] = useState('');
 
 	const state = {
 		setFirstName,
@@ -18,21 +17,20 @@ const RegisterProvider = (props) => {
 		setEmail,
 		setPassword,
 		addNewUser,
-		message,
 	};
 
 	async function addNewUser() {
 		try {
-			await axios.post(`${API}/register`, {
+			const { data } = await axios.post(`${API}/register`, {
 				firstName,
 				lastName,
 				email,
 				password,
 			});
 
-			setMessage('The user has been created successfully');
+			return data;
 		} catch (error) {
-			setMessage('Error happened while register, please try again');
+			console.log(error);
 		}
 	}
 

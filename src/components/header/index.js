@@ -13,18 +13,16 @@ const Navigation = () => {
 		loginContext.logout();
 	};
 
-	console.log(loginContext.loggedIn);
-
 	return (
-		<Navbar appearance="inverse">
-			<Navbar.Header style={{ padding: '4px 30px', fontSize: '2rem' }}>
+		<Navbar appearance="inverse" style={{ padding: '0.5rem 0' }}>
+			<Navbar.Header style={{ padding: '6px 30px', fontSize: '1.8rem' }}>
 				ToDo
 			</Navbar.Header>
 			<Navbar.Body style={{ float: 'right', paddingRight: '2rem' }}>
 				<Nav activeKey={null}>
 					<If condition={!loginContext.loggedIn}>
 						<Then>
-							<Link to="/register" style={{ color: 'white' }}>
+							<Link to="/register" style={{ color: 'white', fontSize: '2rem' }}>
 								<Nav.Item eventKey="1" icon={<Icon icon="user-plus" />}>
 									Register
 								</Nav.Item>

@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import React, { useState } from 'react';
 import jwt from 'jsonwebtoken';
 
 export const LoginContext = React.createContext();
@@ -29,25 +29,32 @@ const LoginProvider = (props) => {
 		logout,
 	};
 
+	useEffect(() => {
+		const token = sessionStorage.getItem('token');
+		if (token) {
+			saveToken(token);
+		}
+	}, []);
+
 	function saveToken(token) {
 		const user = jwt.decode(token);
 		if (user) {
 			setUserId(user.userId);
-			localStorage.setItem('token', token);
+			setLoggedIn(true);
+			setFailed(false);
+			sessionStorage.setItem('token', token);
 		}
 	}
 
 	async function login() {
 		try {
-			const response = await axios.post(`${API}/login`, {
+			const { data } = await axios.post(`${API}/login`, {
 				email,
 				password,
 			});
 
-			setToken(response.data.token);
-			saveToken(response.data.token);
-			setLoggedIn(true);
-			setFailed(false);
+			setToken(data);
+			saveToken(data);
 		} catch (error) {
 			setFailed(true);
 			setLoggedIn(false);
@@ -57,7 +64,7 @@ const LoginProvider = (props) => {
 
 	function logout() {
 		setLoggedIn(false);
-		localStorage.clear();
+		sessionStorage.removeItem('token');
 	}
 
 	return (
