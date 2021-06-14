@@ -13,7 +13,7 @@ const LoginProvider = (props) => {
 	const [loggedIn, setLoggedIn] = useState(false);
 	const [failed, setFailed] = useState(false);
 	const [token, setToken] = useState('');
-	const [userId, setUserId] = useState('');
+	const [userInfo, setUserInfo] = useState('');
 
 	const state = {
 		email,
@@ -25,8 +25,9 @@ const LoginProvider = (props) => {
 		loggedIn,
 		failed,
 		token,
-		userId,
+		userInfo,
 		logout,
+		saveToken,
 	};
 
 	useEffect(() => {
@@ -39,7 +40,8 @@ const LoginProvider = (props) => {
 	function saveToken(token) {
 		const user = jwt.decode(token);
 		if (user) {
-			setUserId(user.userId);
+			setToken(token);
+			setUserInfo(user);
 			setLoggedIn(true);
 			setFailed(false);
 			sessionStorage.setItem('token', token);

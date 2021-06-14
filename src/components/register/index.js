@@ -33,19 +33,20 @@ const Register = () => {
 	const history = useHistory();
 
 	const handleClick = async () => {
-		const user = await registerContext.addNewUser();
-
-		if (user) {
-			setMessage('The user has been created successfully');
-			setFailed(false);
-			setSuccess(true);
-			open('success');
-			redirect();
-		} else {
+		try {
+			const user = await registerContext.addNewUser();
+			if (user) {
+				setMessage('The user has been created successfully');
+				setFailed(false);
+				setSuccess(true);
+				redirect();
+			} else {
+				throw new Error('Error happened while register, please try again');
+			}
+		} catch (error) {
 			setMessage('Error happened while register, please try again');
 			setFailed(true);
 			setSuccess(false);
-			open('error');
 		}
 	};
 
@@ -123,6 +124,22 @@ const Register = () => {
 						</Panel>
 					</FlexboxGrid.Item>
 				</FlexboxGrid>
+				<If condition={failed}>
+					<Then>
+						{() => {
+							open('error');
+							setFailed(false);
+						}}
+					</Then>
+				</If>
+				<If condition={success}>
+					<Then>
+						{() => {
+							open('success');
+							setSuccess(false);
+						}}
+					</Then>
+				</If>
 			</Content>
 		</>
 	);
