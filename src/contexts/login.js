@@ -60,7 +60,7 @@ const LoginProvider = (props) => {
 		} catch (error) {
 			setFailed(true);
 			setLoggedIn(false);
-			setMessage(error.response.data);
+			setMessage(error);
 		}
 	}
 
