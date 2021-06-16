@@ -9,7 +9,7 @@ const Navigation = () => {
 	const history = useHistory();
 
 	const handleClick = () => {
-		history.push('/login');
+		history.push('/');
 		loginContext.logout();
 	};
 
@@ -27,7 +27,7 @@ const Navigation = () => {
 									Register
 								</Nav.Item>
 							</Link>
-							<Link to="/login" style={{ color: 'white' }}>
+							<Link to="/" style={{ color: 'white' }}>
 								<Nav.Item eventKey="2" icon={<Icon icon="sign-in" />}>
 									Login
 								</Nav.Item>

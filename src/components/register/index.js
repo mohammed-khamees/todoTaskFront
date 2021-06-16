@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { RegisterContext } from './../../contexts/register';
-import { If, Then, Else } from 'react-if';
+import { If, Then } from 'react-if';
 import {
 	Form,
 	FormGroup,
@@ -28,7 +28,6 @@ const model = Schema.Model({
 const Register = () => {
 	const [success, setSuccess] = useState(false);
 	const [failed, setFailed] = useState(false);
-	const [message, setMessage] = useState('');
 	const registerContext = useContext(RegisterContext);
 	const history = useHistory();
 
@@ -36,28 +35,29 @@ const Register = () => {
 		try {
 			const user = await registerContext.addNewUser();
 			if (user) {
-				setMessage('The user has been created successfully');
+				registerContext.setMessage('The user has been created successfully');
 				setFailed(false);
 				setSuccess(true);
 				redirect();
 			} else {
-				throw new Error('Error happened while register, please try again');
+				registerContext.setMessage(
+					'Error happened while register, please try again',
+				);
 			}
 		} catch (error) {
-			setMessage('Error happened while register, please try again');
 			setFailed(true);
 			setSuccess(false);
 		}
 	};
 
 	const redirect = () => {
-		history.push('/login');
+		history.push('/');
 	};
 
 	function open(funcName) {
 		Notification[funcName]({
 			title: funcName,
-			description: message,
+			description: registerContext.message,
 		});
 	}
 

@@ -11,6 +11,7 @@ const LoginProvider = (props) => {
 	const [password, setPassword] = useState('');
 	const [message, setMessage] = useState('');
 	const [loggedIn, setLoggedIn] = useState(false);
+	const [failed, setFailed] = useState(false);
 	const [token, setToken] = useState('');
 	const [userInfo, setUserInfo] = useState({});
 
@@ -20,12 +21,16 @@ const LoginProvider = (props) => {
 		password,
 		setPassword,
 		login,
+		setMessage,
 		message,
 		loggedIn,
 		token,
 		userInfo,
+		setUserInfo,
 		logout,
 		saveToken,
+		failed,
+		setFailed,
 	};
 
 	useEffect(() => {
@@ -42,6 +47,8 @@ const LoginProvider = (props) => {
 			setToken(token);
 			setUserInfo(user);
 			setLoggedIn(true);
+			setEmail('');
+			setPassword('');
 		}
 	}
 
@@ -52,8 +59,15 @@ const LoginProvider = (props) => {
 				password,
 			});
 
-			setToken(data);
-			saveToken(data);
+			if (Array.isArray(data)) {
+				setMessage(data[0]);
+				setFailed(true);
+				setLoggedIn(false);
+			} else {
+				setToken(data);
+				setMessage('login successfully');
+				saveToken(data);
+			}
 		} catch (error) {
 			setLoggedIn(false);
 			setMessage(error);

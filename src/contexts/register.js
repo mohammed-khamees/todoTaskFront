@@ -10,6 +10,7 @@ const RegisterProvider = (props) => {
 	const [lastName, setLastName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [message, setMessage] = useState('');
 
 	const state = {
 		setFirstName,
@@ -17,6 +18,8 @@ const RegisterProvider = (props) => {
 		setEmail,
 		setPassword,
 		addNewUser,
+		setMessage,
+		message,
 	};
 
 	async function addNewUser() {
@@ -30,7 +33,7 @@ const RegisterProvider = (props) => {
 
 			return data;
 		} catch (error) {
-			console.log(error);
+			setMessage(error.response.data);
 		}
 	}
 

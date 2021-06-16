@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
+import { LoginContext } from './../../contexts/login';
 
 import {
 	Form,
@@ -12,7 +13,6 @@ import {
 	Schema,
 	FlexboxGrid,
 	Panel,
-	Input,
 	Icon,
 	HelpBlock,
 } from 'rsuite';
@@ -26,48 +26,57 @@ const model = Schema.Model({
 const API = process.env.REACT_APP_ROOT_API;
 
 const Profile = () => {
-	const [user, setUser] = useState({});
 	const [show, setShow] = useState(false);
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
-	const token = sessionStorage.getItem('token');
+	const loginContext = useContext(LoginContext);
 
 	useEffect(() => {
-		if (token) {
-			const userInfo = jwt.decode(token);
+		if (loginContext.token) {
+			const userInfo = jwt.decode(loginContext.token);
 			if (userInfo) {
-				setUser(userInfo.user);
+				loginContext.setUserInfo(userInfo.user);
 				setFirstName(userInfo.user.firstName);
 				setLastName(userInfo.user.lastName);
 				setEmail(userInfo.user.email);
 				setPassword(userInfo.user.password);
 			}
 		}
-	}, []);
+		// eslint-disable-next-line
+	}, [loginContext.token]);
 
 	const handleClick = () => {
 		setShow(!show);
 	};
 
 	const handelSubmit = async () => {
-		const newData = {
-			firstName,
-			lastName,
-			email,
-			password,
-		};
+		try {
+			const newData = {
+				firstName,
+				lastName,
+				email,
+				password,
+			};
 
-		const { data } = await axios.put(`${API}/updateInfo/${user._id}`, newData, {
-			headers: {
-				authorization: `Bearer ${token}`,
-			},
-		});
+			const { data } = await axios.put(
+				`${API}/updateInfo/${loginContext.userInfo._id}`,
+				newData,
+				{
+					headers: {
+						authorization: `Bearer ${loginContext.token}`,
+					},
+				},
+			);
 
-		setUser(data);
-		setShow(!show);
+			loginContext.setUserInfo(data);
+			setShow(!show);
+			loginContext.setMessage('');
+		} catch (error) {
+			loginContext.setMessage(error.response.data);
+		}
 	};
 
 	return (
@@ -99,9 +108,9 @@ const Profile = () => {
 							marginBottom: '2rem',
 						}}
 					>
-						<p>First Name: {firstName}</p>
-						<p>Last Name: {lastName}</p>
-						<p>Email: {email}</p>
+						<p>First Name: {loginContext.userInfo.firstName}</p>
+						<p>Last Name: {loginContext.userInfo.lastName}</p>
+						<p>Email: {loginContext.userInfo.email}</p>
 					</div>
 					<Button
 						size="lg"
@@ -168,6 +177,7 @@ const Profile = () => {
 							<Button size="lg" appearance="primary" type="submit">
 								Update
 							</Button>
+							<span style={{ marginLeft: '1rem' }}>{loginContext.message}</span>
 						</Form>
 					</Panel>
 				</FlexboxGrid.Item>

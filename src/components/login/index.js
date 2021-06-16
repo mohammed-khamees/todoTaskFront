@@ -12,6 +12,7 @@ import {
 	FlexboxGrid,
 	Content,
 	Panel,
+	Notification,
 } from 'rsuite';
 
 const { StringType } = Schema.Types;
@@ -26,7 +27,7 @@ const Login = () => {
 	const loginContext = useContext(LoginContext);
 	const history = useHistory();
 
-	const handleClick = () => {
+	const handleSubmit = () => {
 		loginContext.login();
 	};
 
@@ -39,6 +40,13 @@ const Login = () => {
 	const register = () => {
 		history.push('/register');
 	};
+
+	function open(funcName) {
+		Notification[funcName]({
+			title: funcName,
+			description: loginContext.message,
+		});
+	}
 
 	return (
 		<>
@@ -55,7 +63,7 @@ const Login = () => {
 								color: 'black',
 							}}
 						>
-							<Form model={model} onSubmit={handleClick} fluid>
+							<Form model={model} onSubmit={handleSubmit} fluid>
 								<FormGroup>
 									<ControlLabel>E-mail:</ControlLabel>
 									<FormControl
@@ -86,7 +94,22 @@ const Login = () => {
 					</FlexboxGrid.Item>
 				</FlexboxGrid>
 				<If condition={loginContext.loggedIn}>
-					<Then>{redirectToTasks()}</Then>
+					<Then>{redirectToTasks}</Then>
+				</If>
+				<If condition={loginContext.failed}>
+					<Then>
+						{() => {
+							loginContext.setFailed(false);
+							open('error');
+						}}
+					</Then>
+				</If>
+				<If condition={loginContext.loggedIn}>
+					<Then>
+						{() => {
+							open('success');
+						}}
+					</Then>
 				</If>
 			</Content>
 		</>

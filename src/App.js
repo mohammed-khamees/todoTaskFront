@@ -13,10 +13,10 @@ function App() {
 	return (
 		<Container>
 			<Header />
-			<Route path="/register" component={Register} />
-			<Route path="/login" component={Login} />
-			<Route path="/EditProfile" component={Profile} />
-			<Route path="/tasks" component={Tasks} />
+			<Route exact path="/register" component={Register} />
+			<Route exact path="/" component={Login} />
+			<Route exact path="/EditProfile" component={Profile} />
+			<Route exact path="/tasks" component={Tasks} />
 		</Container>
 	);
 }
