@@ -11,9 +11,8 @@ const LoginProvider = (props) => {
 	const [password, setPassword] = useState('');
 	const [message, setMessage] = useState('');
 	const [loggedIn, setLoggedIn] = useState(false);
-	const [failed, setFailed] = useState(false);
 	const [token, setToken] = useState('');
-	const [userInfo, setUserInfo] = useState('');
+	const [userInfo, setUserInfo] = useState({});
 
 	const state = {
 		email,
@@ -23,7 +22,6 @@ const LoginProvider = (props) => {
 		login,
 		message,
 		loggedIn,
-		failed,
 		token,
 		userInfo,
 		logout,
@@ -38,13 +36,12 @@ const LoginProvider = (props) => {
 	}, []);
 
 	function saveToken(token) {
-		const user = jwt.decode(token);
+		const { user } = jwt.decode(token);
 		if (user) {
+			sessionStorage.setItem('token', token);
 			setToken(token);
 			setUserInfo(user);
 			setLoggedIn(true);
-			setFailed(false);
-			sessionStorage.setItem('token', token);
 		}
 	}
 
@@ -58,7 +55,6 @@ const LoginProvider = (props) => {
 			setToken(data);
 			saveToken(data);
 		} catch (error) {
-			setFailed(true);
 			setLoggedIn(false);
 			setMessage(error);
 		}

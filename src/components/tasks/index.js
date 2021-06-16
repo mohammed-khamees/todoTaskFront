@@ -3,6 +3,17 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import Task from './../task';
 import moment from 'moment';
+import {
+	Form,
+	FormGroup,
+	ControlLabel,
+	HelpBlock,
+	RadioGroup,
+	Radio,
+	Button,
+	FormControl,
+	Modal,
+} from 'rsuite';
 
 const API = process.env.REACT_APP_ROOT_API;
 
@@ -11,7 +22,12 @@ const parsedToken = jwt.decode(token);
 
 const Tasks = () => {
 	const [tasks, setTasks] = useState([]);
+	const [title, setTitle] = useState('');
+	const [description, setDescription] = useState('');
+	const [priority, setPriority] = useState('');
+	const [completed, setCompleted] = useState(false);
 	const [filterdTasks, setFilterdTasks] = useState([]);
+	const [show, setShow] = useState(false);
 
 	// eslint-disable-next-line
 	useEffect(async () => {
@@ -26,15 +42,15 @@ const Tasks = () => {
 		);
 	}, []);
 
-	const addNewTask = async (e) => {
-		e.preventDefault();
-
+	const addNewTask = async () => {
+		console.log('hello');
 		const newTask = {
-			title: e.target.title.value,
-			description: e.target.description.value,
-			priority: e.target.priority.value,
+			title,
+			description,
+			priority,
+			completed,
 			time: moment().format('llll'),
-			user: e.target.user.value,
+			user: parsedToken.user._id,
 		};
 
 		const { data } = await axios.post(`${API}/tasks`, newTask, {
@@ -43,9 +59,6 @@ const Tasks = () => {
 			},
 		});
 
-		e.target.title.value = '';
-		e.target.description.value = '';
-		e.target.title.focus();
 		setTasks([data, ...tasks]);
 	};
 
@@ -87,22 +100,77 @@ const Tasks = () => {
 		}
 	};
 
+	const handleClick = () => {
+		setShow(!show);
+	};
+
 	return (
 		<>
-			<form onSubmit={addNewTask}>
-				<input type="text" name="title" />
-				<textarea name="description"></textarea>
+			<Modal
+				show={show}
+				onHide={handleClick}
+				size="xs"
+				style={{ marginTop: '3%' }}
+			>
+				<Modal.Header>
+					<Modal.Title>Add The New Task Info</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					<Form onSubmit={addNewTask} fluid>
+						<FormGroup>
+							<ControlLabel>Title</ControlLabel>
+							<FormControl name="title" onChange={(value) => setTitle(value)} />
+							<HelpBlock tooltip>Required</HelpBlock>
+						</FormGroup>
+						<FormGroup>
+							<ControlLabel>Description</ControlLabel>
+							<FormControl
+								rows={5}
+								name="textarea"
+								componentClass="textarea"
+								onChange={(value) => setDescription(value)}
+							/>
+							<HelpBlock tooltip>Required</HelpBlock>
+						</FormGroup>
+						<FormGroup controlId="radioList">
+							<RadioGroup
+								name="radioList"
+								onChange={(value) => setPriority(value)}
+								inline
+							>
+								<p>Priority</p>
+								<Radio value="low">Low</Radio>
+								<Radio value="medium">Medium</Radio>
+								<Radio value="high">High</Radio>
+							</RadioGroup>
+							<HelpBlock tooltip>Required</HelpBlock>
+						</FormGroup>
+						<FormGroup controlId="radioList">
+							<RadioGroup
+								name="radioList"
+								onChange={(value) => setCompleted(value)}
+								inline
+							>
+								<p>isCompleted</p>
+								<Radio value={false}>Pending</Radio>
+								<Radio value={true}>Completed</Radio>
+							</RadioGroup>
+						</FormGroup>
+						<Button size="lg" appearance="primary" type="submit">
+							Add
+						</Button>
+					</Form>
+				</Modal.Body>
+			</Modal>
 
-				<select name="priority" defaultValue="low">
-					<option value="low">low</option>
-					<option value="medium">medium</option>
-					<option value="high">high</option>
-				</select>
-				<input type="hidden" name="user" defaultValue={parsedToken.user._id} />
-				<button>Add</button>
-			</form>
-
-			<form onSubmit={filter}>
+			<Button
+				style={{ width: '10rem', margin: '2rem auto' }}
+				appearance="primary"
+				onClick={handleClick}
+			>
+				Add New Task
+			</Button>
+			{/* <form onSubmit={filter}>
 				<select name="priority">
 					<option value="">none</option>
 					<option value="low">low</option>
@@ -116,15 +184,42 @@ const Tasks = () => {
 				</select>
 				<button>filter</button>
 			</form>
-			<button onClick={() => setFilterdTasks([...tasks])}>All Tasks</button>
+			<button
+				onClick={() => setFilterdTasks([...tasks])}
+				style={{ width: 240 }}
+			>
+				All Tasks
+			</button> */}
 
-			{!filterdTasks.length
-				? tasks.map((task) => (
+			{!filterdTasks.length ? (
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-evenly',
+						alignItems: 'center',
+						flexWrap: 'wrap',
+						marginTop: '3rem',
+					}}
+				>
+					{tasks.map((task) => (
+						<Task task={task} key={task._id} deleteTask={deleteTask} />
+					))}
+				</div>
+			) : (
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-evenly',
+						alignItems: 'center',
+						flexWrap: 'wrap',
+						marginTop: '3rem',
+					}}
+				>
+					{filterdTasks.map((task) => (
 						<Task key={task._id} task={task} deleteTask={deleteTask} />
-				  ))
-				: filterdTasks.map((task) => (
-						<Task key={task._id} task={task} deleteTask={deleteTask} />
-				  ))}
+					))}
+				</div>
+			)}
 		</>
 	);
 };
