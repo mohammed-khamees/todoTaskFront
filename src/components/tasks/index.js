@@ -72,34 +72,6 @@ const Tasks = () => {
 		setTasks(tasks.filter((task) => task._id !== id));
 	};
 
-	const filter = (e) => {
-		e.preventDefault();
-		const priority = e.target.priority.value;
-		const completed = e.target.completed.value;
-
-		if (priority && completed) {
-			setFilterdTasks(
-				tasks.filter(
-					(task) =>
-						task.priority === priority &&
-						task.isCompleted.toString() === completed,
-				),
-			);
-			e.target.priority.value = '';
-			e.target.completed.value = '';
-		} else if (priority) {
-			setFilterdTasks([...tasks.filter((task) => task.priority === priority)]);
-			e.target.priority.value = '';
-		} else if (completed) {
-			setFilterdTasks([
-				...tasks.filter((task) => task.isCompleted.toString() === completed),
-			]);
-			e.target.completed.value = '';
-		} else {
-			setFilterdTasks([...tasks]);
-		}
-	};
-
 	const handleClick = () => {
 		setShow(!show);
 	};
@@ -170,26 +142,6 @@ const Tasks = () => {
 			>
 				Add New Task
 			</Button>
-			{/* <form onSubmit={filter}>
-				<select name="priority">
-					<option value="">none</option>
-					<option value="low">low</option>
-					<option value="medium">medium</option>
-					<option value="high">high</option>
-				</select>
-				<select name="completed">
-					<option value="">none</option>
-					<option value="true">Completed</option>
-					<option value="false">Pending</option>
-				</select>
-				<button>filter</button>
-			</form>
-			<button
-				onClick={() => setFilterdTasks([...tasks])}
-				style={{ width: 240 }}
-			>
-				All Tasks
-			</button> */}
 
 			{!filterdTasks.length ? (
 				<div

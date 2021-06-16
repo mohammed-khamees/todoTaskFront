@@ -1,42 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
+
 import {
 	Form,
 	FormGroup,
 	Avatar,
 	ControlLabel,
+	FormControl,
 	Button,
 	Schema,
 	FlexboxGrid,
 	Panel,
 	Input,
+	Icon,
+	HelpBlock,
 } from 'rsuite';
 
 const { StringType } = Schema.Types;
 const model = Schema.Model({
-	firstName: StringType().isRequired('This field is required.'),
-	lastName: StringType().isRequired('This field is required.'),
-	email: StringType()
-		.isEmail('Please enter a valid email address.')
-		.isRequired('This field is required.'),
+	email: StringType().isEmail('Please enter a valid email address.'),
 	password: StringType().isRequired('This field is required.'),
 });
+
+const API = process.env.REACT_APP_ROOT_API;
 
 const Profile = () => {
 	const [user, setUser] = useState({});
 	const [show, setShow] = useState(false);
+	const [firstName, setFirstName] = useState('');
+	const [lastName, setLastName] = useState('');
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+
+	const token = sessionStorage.getItem('token');
 
 	useEffect(() => {
-		const token = sessionStorage.getItem('token');
 		if (token) {
 			const userInfo = jwt.decode(token);
 			if (userInfo) {
 				setUser(userInfo.user);
+				setFirstName(userInfo.user.firstName);
+				setLastName(userInfo.user.lastName);
+				setEmail(userInfo.user.email);
+				setPassword(userInfo.user.password);
 			}
 		}
 	}, []);
 
 	const handleClick = () => {
+		setShow(!show);
+	};
+
+	const handelSubmit = async () => {
+		const newData = {
+			firstName,
+			lastName,
+			email,
+			password,
+		};
+
+		const { data } = await axios.put(`${API}/updateInfo/${user._id}`, newData, {
+			headers: {
+				authorization: `Bearer ${token}`,
+			},
+		});
+
+		setUser(data);
 		setShow(!show);
 	};
 
@@ -46,23 +76,33 @@ const Profile = () => {
 				<Panel
 					header={<h3>Your Info</h3>}
 					bordered
-					style={{ height: '32rem', marginTop: '33.5%', textAlign: 'center' }}
+					style={{ height: '32rem', marginTop: '33%', textAlign: 'center' }}
 				>
 					<Avatar
 						style={{
 							height: '10rem',
 							width: '10rem',
-							fontSize: '4rem',
-							paddingBottom: '1rem',
 							marginBottom: '2rem',
 						}}
 						circle
 					>
-						{user.firstName}
+						<Icon
+							icon="user"
+							style={{
+								fontSize: '6rem',
+							}}
+						/>
 					</Avatar>
-					<p>firstName: {user.firstName}</p>
-					<p>lastName: {user.lastName}</p>
-					<p>email: {user.email}</p>
+					<div
+						style={{
+							fontSize: '1.2rem',
+							marginBottom: '2rem',
+						}}
+					>
+						<p>First Name: {firstName}</p>
+						<p>Last Name: {lastName}</p>
+						<p>Email: {email}</p>
+					</div>
 					<Button
 						size="lg"
 						appearance="primary"
@@ -86,41 +126,43 @@ const Profile = () => {
 							height: '32rem',
 						}}
 					>
-						<Form model={model} fluid>
+						<Form model={model} fluid onSubmit={handelSubmit}>
 							<FormGroup>
 								<ControlLabel>First Name</ControlLabel>
-								<Input
+								<FormControl
 									name="firstName"
 									type="text"
 									placeholder="firstName here"
-									defaultValue={user.firstName}
+									onChange={(value) => setFirstName(value)}
 								/>
 							</FormGroup>
 							<FormGroup>
 								<ControlLabel>Last Name</ControlLabel>
-								<Input
+								<FormControl
 									name="lastName"
 									type="text"
 									placeholder="lastName here"
-									defaultValue={user.lastName}
+									onChange={(value) => setLastName(value)}
 								/>
 							</FormGroup>
 							<FormGroup>
 								<ControlLabel>E-mail:</ControlLabel>
-								<Input
+								<FormControl
 									name="email"
 									type="email"
 									placeholder="email here"
-									defaultValue={user.email}
+									onChange={(value) => setEmail(value)}
 								/>
 							</FormGroup>
 							<FormGroup>
 								<ControlLabel>Password</ControlLabel>
-								<Input
+								<FormControl
 									name="password"
 									type="password"
 									placeholder="password here"
+									onChange={(value) => setPassword(value)}
 								/>
+								<HelpBlock>Required</HelpBlock>
 							</FormGroup>
 
 							<Button size="lg" appearance="primary" type="submit">
