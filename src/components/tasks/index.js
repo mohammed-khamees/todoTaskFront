@@ -17,20 +17,22 @@ import {
 
 const API = process.env.REACT_APP_ROOT_API;
 
-const token = sessionStorage.getItem('token');
-const parsedToken = jwt.decode(token);
-
 const Tasks = () => {
 	const [tasks, setTasks] = useState([]);
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
 	const [priority, setPriority] = useState('');
 	const [completed, setCompleted] = useState(false);
-	const [filterdTasks, setFilterdTasks] = useState([]);
 	const [show, setShow] = useState(false);
+	const [userId, setUserId] = useState('');
 
 	// eslint-disable-next-line
 	useEffect(async () => {
+		const token = sessionStorage.getItem('token');
+		const parsedToken = jwt.decode(token);
+
+		setUserId(parsedToken.user._id);
+
 		const { data } = await axios.get(`${API}/tasks`, {
 			headers: {
 				authorization: `Bearer ${token}`,
@@ -38,34 +40,38 @@ const Tasks = () => {
 		});
 
 		setTasks(
-			data.filter((task) => task.user === parsedToken.user._id).reverse(),
+			data
+				.filter((task) => {
+					return task.user === parsedToken.user._id;
+				})
+				.reverse(),
 		);
 	}, []);
 
 	const addNewTask = async () => {
-		console.log('hello');
 		const newTask = {
 			title,
 			description,
 			priority,
 			completed,
 			time: moment().format('llll'),
-			user: parsedToken.user._id,
+			user: userId,
 		};
 
 		const { data } = await axios.post(`${API}/tasks`, newTask, {
 			headers: {
-				authorization: `Bearer ${token}`,
+				authorization: `Bearer ${sessionStorage.getItem('token')}`,
 			},
 		});
 
 		setTasks([data, ...tasks]);
+		setShow(!show);
 	};
 
 	const deleteTask = async (id) => {
-		const { data } = await axios.delete(`${API}/tasks/${id}`, {
+		await axios.delete(`${API}/tasks/${id}`, {
 			headers: {
-				authorization: `Bearer ${token}`,
+				authorization: `Bearer ${sessionStorage.getItem('token')}`,
 			},
 		});
 
@@ -143,7 +149,7 @@ const Tasks = () => {
 				Add New Task
 			</Button>
 
-			{!filterdTasks.length ? (
+			{tasks.length && (
 				<div
 					style={{
 						display: 'flex',
@@ -155,20 +161,6 @@ const Tasks = () => {
 				>
 					{tasks.map((task) => (
 						<Task task={task} key={task._id} deleteTask={deleteTask} />
-					))}
-				</div>
-			) : (
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-evenly',
-						alignItems: 'center',
-						flexWrap: 'wrap',
-						marginTop: '3rem',
-					}}
-				>
-					{filterdTasks.map((task) => (
-						<Task key={task._id} task={task} deleteTask={deleteTask} />
 					))}
 				</div>
 			)}

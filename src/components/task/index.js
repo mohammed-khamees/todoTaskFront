@@ -35,7 +35,7 @@ const Task = ({ task, deleteTask }) => {
 		if (priority === 'high') setTagBg('red');
 		if (priority === 'medium') setTagBg('orange');
 		// eslint-disable-next-line
-	}, []);
+	}, [tagBg]);
 
 	const handleClick = () => {
 		setShow(!show);
