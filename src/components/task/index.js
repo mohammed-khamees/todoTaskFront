@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import jwt from 'jsonwebtoken';
-import moment from 'moment';
 import {
 	Form,
 	FormGroup,
@@ -19,9 +17,6 @@ import {
 } from 'rsuite';
 
 const API = process.env.REACT_APP_ROOT_API;
-
-const token = sessionStorage.getItem('token');
-const parsedToken = jwt.decode(token);
 
 const Task = ({ task, deleteTask }) => {
 	const [title, setTitle] = useState(task.title);
@@ -53,13 +48,11 @@ const Task = ({ task, deleteTask }) => {
 			description,
 			priority,
 			isCompleted: completed,
-			time: moment().format('llll'),
-			user: parsedToken.user._id,
 		};
 
 		await axios.put(`${API}/tasks/${id}`, newData, {
 			headers: {
-				authorization: `Bearer ${token}`,
+				authorization: `Bearer ${sessionStorage.getItem('token')}`,
 			},
 		});
 	};
