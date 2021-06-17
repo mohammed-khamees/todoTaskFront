@@ -34,11 +34,17 @@ const Task = ({ task, deleteTask }) => {
 	useEffect(() => {
 		if (priority === 'high') setTagBg('red');
 		if (priority === 'medium') setTagBg('orange');
+		if (priority === 'low') setTagBg('green');
 		// eslint-disable-next-line
-	}, [tagBg]);
+	}, [priority]);
 
 	const handleClick = () => {
 		setShow(!show);
+	};
+
+	const handleCompleted = (id) => {
+		setCompleted(!completed);
+		updateTask(id);
 	};
 
 	const updateTask = async (id) => {
@@ -46,7 +52,7 @@ const Task = ({ task, deleteTask }) => {
 			title,
 			description,
 			priority,
-			completed,
+			isCompleted: completed,
 			time: moment().format('llll'),
 			user: parsedToken.user._id,
 		};
@@ -75,13 +81,10 @@ const Task = ({ task, deleteTask }) => {
 					<Tag color={tagBg}>{priority}</Tag>
 					<Tag
 						style={{ cursor: 'pointer' }}
-						color={task.isCompleted ? 'green' : 'red'}
-						onClick={() => {
-							setCompleted(!completed);
-							updateTask(task._id);
-						}}
+						color={completed ? 'green' : 'red'}
+						onClick={() => handleCompleted(task._id)}
 					>
-						{task.isCompleted ? 'Completed' : 'Pending...'}
+						{completed ? 'Completed' : 'Pending...'}
 					</Tag>
 				</TagGroup>
 				<IconStack
@@ -135,7 +138,7 @@ const Task = ({ task, deleteTask }) => {
 								defaultValue={task.priority}
 								inline
 							>
-								<p>Priority</p>
+								<p style={{ marginLeft: '0.6rem' }}>Priority</p>
 								<Radio value="low">Low</Radio>
 								<Radio value="medium">Medium</Radio>
 								<Radio value="high">High</Radio>
@@ -144,11 +147,11 @@ const Task = ({ task, deleteTask }) => {
 						<FormGroup controlId="radioList">
 							<RadioGroup
 								name="radioList"
-								onChange={(value) => setCompleted(value)}
 								defaultValue={task.isCompleted}
+								onChange={(value) => setCompleted(value)}
 								inline
 							>
-								<p>isCompleted</p>
+								<p style={{ marginLeft: '0.6rem' }}>isCompleted</p>
 								<Radio value={false}>Pending</Radio>
 								<Radio value={true}>Completed</Radio>
 							</RadioGroup>

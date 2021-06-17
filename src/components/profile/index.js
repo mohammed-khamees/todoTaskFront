@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import { LoginContext } from './../../contexts/login';
@@ -34,7 +35,12 @@ const Profile = () => {
 
 	const loginContext = useContext(LoginContext);
 
+	const history = useHistory();
+
 	useEffect(() => {
+		const token = sessionStorage.getItem('token');
+		if (!token) history.push('/');
+
 		if (loginContext.token) {
 			const userInfo = jwt.decode(loginContext.token);
 			if (userInfo) {

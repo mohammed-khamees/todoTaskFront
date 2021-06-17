@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import Task from './../task';
@@ -19,6 +20,7 @@ const API = process.env.REACT_APP_ROOT_API;
 
 const Tasks = () => {
 	const [tasks, setTasks] = useState([]);
+	const [tasksFiltered, setTasksFiltered] = useState([]);
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
 	const [priority, setPriority] = useState('');
@@ -26,26 +28,40 @@ const Tasks = () => {
 	const [show, setShow] = useState(false);
 	const [userId, setUserId] = useState('');
 
+	const history = useHistory();
+
 	// eslint-disable-next-line
 	useEffect(async () => {
 		const token = sessionStorage.getItem('token');
-		const parsedToken = jwt.decode(token);
+		if (!token) history.push('/');
+		else {
+			const parsedToken = jwt.decode(token);
 
-		setUserId(parsedToken.user._id);
+			setUserId(parsedToken.user._id);
 
-		const { data } = await axios.get(`${API}/tasks`, {
-			headers: {
-				authorization: `Bearer ${token}`,
-			},
-		});
+			const { data } = await axios.get(`${API}/tasks`, {
+				headers: {
+					authorization: `Bearer ${token}`,
+				},
+			});
 
-		setTasks(
-			data
-				.filter((task) => {
-					return task.user === parsedToken.user._id;
-				})
-				.reverse(),
-		);
+			setTasks(
+				data
+					.filter((task) => {
+						return task.user === parsedToken.user._id;
+					})
+					.reverse(),
+			);
+
+			setTasksFiltered(
+				data
+					.filter((task) => {
+						return task.user === parsedToken.user._id;
+					})
+					.reverse(),
+			);
+		}
+		// eslint-disable-next-line
 	}, []);
 
 	const addNewTask = async () => {
@@ -53,7 +69,7 @@ const Tasks = () => {
 			title,
 			description,
 			priority,
-			completed,
+			isCompleted: completed,
 			time: moment().format('llll'),
 			user: userId,
 		};
@@ -65,6 +81,7 @@ const Tasks = () => {
 		});
 
 		setTasks([data, ...tasks]);
+		setTasksFiltered([data, ...tasks]);
 		setShow(!show);
 	};
 
@@ -76,10 +93,23 @@ const Tasks = () => {
 		});
 
 		setTasks(tasks.filter((task) => task._id !== id));
+		setTasksFiltered(tasks.filter((task) => task._id !== id));
 	};
 
 	const handleClick = () => {
 		setShow(!show);
+	};
+
+	const filter = (value, prop) => {
+		setTasksFiltered(
+			tasks.filter((task) => {
+				return task[prop] === value;
+			}),
+		);
+	};
+
+	const showAllTasks = () => {
+		setTasksFiltered([...tasks]);
 	};
 
 	return (
@@ -98,7 +128,7 @@ const Tasks = () => {
 						<FormGroup>
 							<ControlLabel>Title</ControlLabel>
 							<FormControl name="title" onChange={(value) => setTitle(value)} />
-							<HelpBlock tooltip>Required</HelpBlock>
+							<HelpBlock>Required</HelpBlock>
 						</FormGroup>
 						<FormGroup>
 							<ControlLabel>Description</ControlLabel>
@@ -108,7 +138,7 @@ const Tasks = () => {
 								componentClass="textarea"
 								onChange={(value) => setDescription(value)}
 							/>
-							<HelpBlock tooltip>Required</HelpBlock>
+							<HelpBlock>Required</HelpBlock>
 						</FormGroup>
 						<FormGroup controlId="radioList">
 							<RadioGroup
@@ -116,20 +146,21 @@ const Tasks = () => {
 								onChange={(value) => setPriority(value)}
 								inline
 							>
-								<p>Priority</p>
+								<p style={{ marginLeft: '0.6rem' }}>Priority</p>
 								<Radio value="low">Low</Radio>
 								<Radio value="medium">Medium</Radio>
 								<Radio value="high">High</Radio>
 							</RadioGroup>
-							<HelpBlock tooltip>Required</HelpBlock>
 						</FormGroup>
 						<FormGroup controlId="radioList">
 							<RadioGroup
 								name="radioList"
-								onChange={(value) => setCompleted(value)}
+								onChange={(value) => {
+									setCompleted(value);
+								}}
 								inline
 							>
-								<p>isCompleted</p>
+								<p style={{ marginLeft: '0.6rem' }}>isCompleted</p>
 								<Radio value={false}>Pending</Radio>
 								<Radio value={true}>Completed</Radio>
 							</RadioGroup>
@@ -149,7 +180,41 @@ const Tasks = () => {
 				Add New Task
 			</Button>
 
-			{tasks.length && (
+			<Button
+				onClick={showAllTasks}
+				style={{ width: '10rem', margin: '0 auto', border: '1px solid' }}
+			>
+				Set Default
+			</Button>
+
+			<FormGroup controlId="radioList" style={{ margin: '1rem auto' }}>
+				<RadioGroup
+					name="radioList"
+					onChange={(value) => filter(value, 'priority')}
+					inline
+					style={{
+						marginRight: '1rem',
+						borderRight: '1px solid black',
+						paddingRight: '1.5rem',
+					}}
+				>
+					<p style={{ textAlign: 'center' }}>Priority</p>
+					<Radio value="low">Low</Radio>
+					<Radio value="medium">Medium</Radio>
+					<Radio value="high">High</Radio>
+				</RadioGroup>
+				<RadioGroup
+					name="radioList"
+					onChange={(value) => filter(value, 'isCompleted')}
+					inline
+				>
+					<p style={{ textAlign: 'center' }}>isCompleted</p>
+					<Radio value={false}>Pending</Radio>
+					<Radio value={true}>Completed</Radio>
+				</RadioGroup>
+			</FormGroup>
+
+			{tasksFiltered.length ? (
 				<div
 					style={{
 						display: 'flex',
@@ -159,10 +224,16 @@ const Tasks = () => {
 						marginTop: '3rem',
 					}}
 				>
-					{tasks.map((task) => (
+					{tasksFiltered.map((task) => (
 						<Task task={task} key={task._id} deleteTask={deleteTask} />
 					))}
 				</div>
+			) : (
+				<h1
+					style={{ textAlign: 'center', marginTop: '5rem', color: 'lightgray' }}
+				>
+					There isn't any task
+				</h1>
 			)}
 		</>
 	);
